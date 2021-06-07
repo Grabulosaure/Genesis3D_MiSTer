@@ -116,11 +116,16 @@ entity vdp is
 		--debug
 		BGA_EN		: in  std_logic;
 		BGB_EN		: in  std_logic;
-		SPR_EN		: in  std_logic
+		SPR_EN		: in  std_logic;
+		
+		LR3D			: out std_logic;
+		DEPTH_3D		: in std_logic_vector(2 downto 0)
 	);
 end vdp;
 
 architecture rtl of vdp is
+
+signal lr3d_reg : std_logic;
 
 signal vram_a_reg	: std_logic_vector(16 downto 1);
 signal vram32_a_reg : std_logic_vector(15 downto 1);
@@ -879,6 +884,8 @@ VSRAM1_WE_B <= '0';
 ----------------------------------------------------------------
 -- REGISTERS
 ----------------------------------------------------------------
+LR3D <= lr3d_reg;
+
 ADDR_STEP <= REG(15);
 H40 <= REG(12)(0);
 RS0 <= REG(12)(7);
@@ -1134,7 +1141,11 @@ begin
 					vscroll_mask := vscroll_mask(9 downto 0) & '1';
 				end if;
 
-				V_BGB_XSTART := "0000000000" - HSC_VRAM32_DO(25 downto 16);
+				
+				if lr3d_reg = '0' then V_BGB_XSTART := "0000000000" - (HSC_VRAM32_DO(25 downto 16) - DEPTH_3D);
+				else V_BGB_XSTART := "0000000000" - (HSC_VRAM32_DO(25 downto 16) + DEPTH_3D);
+				end if;
+				
 				if V_BGB_XSTART(3 downto 0) = "0000" then
 					V_BGB_XSTART := V_BGB_XSTART - 16;
 					BGB_POS <= "1111110000";
@@ -1429,7 +1440,12 @@ begin
 					WIN_H <= not WRIGT_LATCH;
 				end if;
 
-				V_BGA_XSTART := "0000000000" - HSC_VRAM32_DO(9 downto 0);
+				
+				
+				if lr3d_reg = '1' then V_BGA_XSTART := "0000000000" - (HSC_VRAM32_DO(9 downto 0) - DEPTH_3D);
+				else V_BGA_XSTART := "0000000000" - (HSC_VRAM32_DO(9 downto 0) + DEPTH_3D);
+				end if;
+				
 				if V_BGA_XSTART(3 downto 0) = "0000" then
 					V_BGA_XSTART := V_BGA_XSTART - 16;
 					BGA_POS <= "1111110000";
@@ -2743,6 +2759,7 @@ begin
 				FF_VS <= '1';
 			end if;
 		end if;
+
 	end if;
 end process;
 
@@ -2805,6 +2822,7 @@ begin
 
 			if HV_HCNT = VSYNC_HSTART and HV_VCNT = VSYNC_START then
 				FIELD_OUT <= LSM(1) and LSM(0) and not FIELD_LATCH;
+				lr3d_reg <= not lr3d_reg;
 			end if;
 
 			V30prev := V30prev and V30;

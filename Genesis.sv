@@ -243,7 +243,7 @@ video_freak video_freak
 // 0         1         2         3          4         5         6   
 // 01234567890123456789012345678901 23456789012345678901234567890123
 // 0123456789ABCDEFGHIJKLMNOPQRSTUV 0123456789ABCDEFGHIJKLMNOPQRSTUV
-// XXXXXXXXXXXX XXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXXXX
+// XXXXXXXXXXXX XXXXXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 `include "build_id.v"
 localparam CONF_STR = {
@@ -275,7 +275,7 @@ localparam CONF_STR = {
 	"P1OT,Border,No,Yes;",
 	"P1oEF,Composite Blend,Off,On,Adaptive;",
 	"P1OA,CRAM Dots,Off,On;",
-	"P1-;",
+	"P1oOQ,3D Depth,Off,1,2,3,4,5,6,7;",
 	"P1OEF,Audio Filter,Model 1,Model 2,Minimal,No Filter;",
 	"P1OB,FM Chip,YM2612,YM3438;",
 	"P1ON,HiFi PCM,No,Yes;",
@@ -577,8 +577,14 @@ system system
 	.PAUSE_EN(DBG_PAUSE_EN),
 	.BGA_EN(VDP_BGA_EN),
 	.BGB_EN(VDP_BGB_EN),
-	.SPR_EN(VDP_SPR_EN)
+	.SPR_EN(VDP_SPR_EN),
+	
+	.DEPTH_3D(DEPTH_3D),
+	.LR3D(LR3D)
 );
+
+wire [2:0] DEPTH_3D = status[58:56];
+wire LR3D;
 
 wire TRANSP_DETECT;
 wire cofi_enable = status[46] || (status[47] && TRANSP_DETECT);
@@ -1064,7 +1070,7 @@ always @(posedge clk_sys) begin
 		USER_OUT[4] <= SERJOYSTICK_OUT[6];
 	end else begin
 		SER_OPT  <= 0;
-		USER_OUT <= '1;
+		USER_OUT <= {LR3D, 6'b111111};
 	end
 end
 

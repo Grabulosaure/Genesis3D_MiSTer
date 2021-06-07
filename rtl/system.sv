@@ -133,7 +133,10 @@ module system
 	input         BGB_EN,
 	input         SPR_EN,
 	output [23:0] DBG_M68K_A,
-	output [23:0] DBG_VBUS_A
+	output [23:0] DBG_VBUS_A,
+	
+	input wire [2:0] DEPTH_3D,
+	output        LR3D
 );
 
 reg reset;
@@ -476,8 +479,13 @@ vdp vdp
 	
 	.BGA_EN(BGA_EN),
 	.BGB_EN(BGB_EN),
-	.SPR_EN(SPR_EN)
+	.SPR_EN(SPR_EN),
+	
+	.LR3D(LR3D),
+	
+	.DEPTH_3D(DEPTH_3D)
 );
+
 
 // PSG 0x10-0x17 in VDP space
 wire signed [10:0] PSG_SND;
