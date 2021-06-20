@@ -486,6 +486,8 @@ wire [7:0] color_lut[16] = '{
 	8'd206, 8'd228, 8'd255, 8'd255
 };
 
+assign VGA_F1 = LR3D;
+
 system system
 (
 	.RESET_N(~reset),
@@ -515,7 +517,7 @@ system system
 	.BORDER(status[29]),
 	.CRAM_DOTS(status[10]),
 	.CE_PIX(ce_pix),
-	.FIELD(VGA_F1),
+//	.FIELD(VGA_F1),
 	.INTERLACE(interlace),
 	.RESOLUTION(resolution),
 	.FAST_FIFO(fifo_quirk),
